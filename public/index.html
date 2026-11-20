@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#182433">
+    <title>Mercado | Panel de gestión</title>
+    <link rel="stylesheet" href="/vendor/tabler/css/tabler.min.css">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+<div class="page">
+    <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#sidebar-menu" aria-controls="sidebar-menu"
+                aria-expanded="false" aria-label="Mostrar navegación">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand navbar-brand-autodark" href="/" aria-label="Mercado">
+                <span class="brand-mark">M</span>
+                <span class="brand-copy">
+                    <strong>Mercado</strong>
+                    <small>Panel de gestión</small>
+                </span>
+            </a>
+
+            <div class="collapse navbar-collapse" id="sidebar-menu">
+                <div class="navbar-nav pt-lg-3" id="nav" aria-label="Secciones de gestión"></div>
+                <div class="sidebar-footer">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span>Operación de tienda</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="page-wrapper">
+        <header class="navbar navbar-expand-md d-print-none">
+            <div class="container-xl">
+                <div class="navbar-nav flex-row order-md-last">
+                    <label class="user-control">
+                        <span class="avatar avatar-sm">A</span>
+                        <span class="user-label">Usuario</span>
+                        <input id="user" class="form-control form-control-sm"
+                            value="admin" aria-label="Usuario para auditoría">
+                    </label>
+                </div>
+                <div class="navbar-brand navbar-brand-autodark d-md-none">
+                    Mercado
+                </div>
+                <div class="topbar-store d-none d-md-block">
+                    <span class="text-secondary">Tienda</span>
+                    <span class="text-secondary mx-2">/</span>
+                    <strong id="breadcrumb-current">Categorías</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="page-header d-print-none">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="page-pretitle">Administración</div>
+                            <h2 class="page-title" id="page-title">Categorías</h2>
+                            <div class="text-secondary mt-1" id="page-description">
+                                Administra las categorías de productos de tu tienda.
+                            </div>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <span class="badge bg-green-lt">
+                                <span class="status-dot me-2" aria-hidden="true"></span>
+                                Sistema operativo
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row row-cards mb-3" id="stats" aria-live="polite"></div>
+                <section class="card mb-3" id="form" aria-live="polite"></section>
+                <section class="card" id="out" aria-live="polite"></section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="delete-modal" tabindex="-1"
+    aria-labelledby="delete-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <span class="avatar avatar-lg bg-danger-lt mb-3" aria-hidden="true">!</span>
+                <h3 id="delete-modal-title">¿Eliminar este registro?</h3>
+                <div class="text-secondary" id="delete-modal-description">
+                    Esta acción no se puede deshacer.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-link link-secondary" type="button" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button class="btn btn-danger ms-auto" type="button" id="confirm-delete">
+                    Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/vendor/tabler/js/tabler.min.js"></script>
+<script src="/vendor/apexcharts/apexcharts.min.js"></script>
+<script src="/script.js"></script>
+</body>
+</html>
