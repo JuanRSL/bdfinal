@@ -3,13 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#182433">
+    <meta name="theme-color" content="#182722">
     <title>Mercado | Panel de gestión</title>
     <link rel="stylesheet" href="/vendor/tabler/css/tabler.min.css">
     <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
+<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 <div class="page">
     <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
         <div class="container-fluid">
@@ -27,7 +28,7 @@
             </a>
 
             <div class="collapse navbar-collapse" id="sidebar-menu">
-                <div class="navbar-nav pt-lg-3" id="nav" aria-label="Secciones de gestión"></div>
+                <nav class="navbar-nav pt-lg-3" id="nav" aria-label="Secciones de gestión"></nav>
                 <div class="sidebar-footer">
                     <span class="status-dot" aria-hidden="true"></span>
                     <span>Operación de tienda</span>
@@ -58,7 +59,7 @@
             </div>
         </header>
 
-        <div class="page-body">
+        <main class="page-body" id="main-content">
             <div class="container-xl">
                 <div class="page-header d-print-none">
                     <div class="row align-items-center">
@@ -82,9 +83,11 @@
                 <section class="card mb-3" id="form" aria-live="polite"></section>
                 <section class="card" id="out" aria-live="polite"></section>
             </div>
-        </div>
+        </main>
     </div>
 </div>
+
+<div class="toast-region" id="toast-region" aria-live="polite" aria-relevant="additions text"></div>
 
 <div class="modal modal-blur fade" id="delete-modal" tabindex="-1"
     aria-labelledby="delete-modal-title" aria-hidden="true">
@@ -92,7 +95,12 @@
         <div class="modal-content">
             <div class="modal-status bg-danger"></div>
             <div class="modal-body text-center py-4">
-                <span class="avatar avatar-lg bg-danger-lt mb-3" aria-hidden="true">!</span>
+                <span class="avatar avatar-lg bg-danger-lt mb-3" aria-hidden="true">
+                    <svg class="lucide-icon" viewBox="0 0 24 24">
+                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+                        <path d="M12 9v4m0 4h.01"/>
+                    </svg>
+                </span>
                 <h3 id="delete-modal-title">¿Eliminar este registro?</h3>
                 <div class="text-secondary" id="delete-modal-description">
                     Esta acción no se puede deshacer.

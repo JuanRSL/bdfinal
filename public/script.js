@@ -29,20 +29,31 @@ const DESCRIPTIONS = {
 };
 
 const ICONS = {
-    dashboard: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-5 5"/>',
-    categorias: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>',
-    productos: '<path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/>',
-    clientes: '<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
-    ventas: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-5 5"/>',
-    detalle_ventas: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
-    auditoria: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'
+    dashboard: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+    categorias: '<path d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"/><path d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"/>',
+    productos: '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><polyline points="3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/>',
+    clientes: '<path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/>',
+    ventas: '<path d="M12 16v5"/><path d="M16 14.639V21"/><path d="M20 10.656V21"/><path d="m22 3-8.646 8.646a.5.5 0 0 1-.708 0L9.354 8.354a.5.5 0 0 0-.707 0L2 15"/><path d="M4 18.463V21"/><path d="M8 14.656V21"/>',
+    detalle_ventas: '<path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/>',
+    auditoria: '<path d="M3 12a9 9 0 1 0 2.12-5.88L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    search: '<path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    check: '<circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/>',
+    alert: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>'
 };
 
+const NAV_GROUPS = [
+    { label: 'General', items: ['dashboard'] },
+    { label: 'Gestión', items: ['categorias', 'productos', 'clientes', 'ventas', 'detalle_ventas'] },
+    { label: 'Control', items: ['auditoria'] }
+];
+
 const STATS = [
-    { key: 'categorias', label: 'Categorías', tone: 'bg-azure-lt text-azure' },
-    { key: 'productos', label: 'Productos', tone: 'bg-indigo-lt text-indigo' },
-    { key: 'clientes', label: 'Clientes', tone: 'bg-teal-lt text-teal' },
-    { key: 'ventas', label: 'Ventas', tone: 'bg-orange-lt text-orange' }
+    { key: 'categorias', label: 'Categorías' },
+    { key: 'productos', label: 'Productos' },
+    { key: 'clientes', label: 'Clientes' },
+    { key: 'ventas', label: 'Ventas' }
 ];
 
 let cur = 'dashboard';
@@ -51,6 +62,7 @@ let editId = null;
 let pendingDeleteId = null;
 let deleteFocusTarget = null;
 let analyticsCharts = [];
+let toastTimeout = null;
 
 const $ = id => document.getElementById(id);
 
@@ -78,14 +90,19 @@ async function api(url, m = 'GET', body) {
     return j;
 }
 
-$('nav').innerHTML = T.map(t =>
-    `<div class="nav-item">
-        <button class="nav-link" type="button" data-t="${t}">
-            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                <svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[t]}</svg>
-            </span>
-            <span>${LABELS[t]}</span>
-        </button>
+$('nav').innerHTML = NAV_GROUPS.map(group =>
+    `<div class="nav-group">
+        <span class="nav-section-label">${group.label}</span>
+        ${group.items.map(t =>
+            `<div class="nav-item">
+                <button class="nav-link" type="button" data-t="${t}">
+                    <span class="nav-link-icon" aria-hidden="true">
+                        <svg class="lucide-icon" viewBox="0 0 24 24">${ICONS[t]}</svg>
+                    </span>
+                    <span>${LABELS[t]}</span>
+                </button>
+            </div>`
+        ).join('')}
     </div>`
 ).join('');
 
@@ -109,23 +126,17 @@ async function refreshStats() {
         return { ...item, count: rows.length };
     }));
 
+    $('stats').classList.remove('row', 'row-cards');
+    $('stats').classList.add('counts-band');
     $('stats').innerHTML = values.map(item =>
-        `<div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="stat-icon ${item.tone}">
-                                <svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[item.key]}</svg>
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="subheader">${item.label}</div>
-                            <div class="stat-value">${item.count.toLocaleString('es-CO')}</div>
-                            <div class="text-secondary small">Registros actuales</div>
-                        </div>
-                    </div>
-                </div>
+        `<div class="count-item">
+            <span class="count-icon" aria-hidden="true">
+                <svg class="lucide-icon" viewBox="0 0 24 24">${ICONS[item.key]}</svg>
+            </span>
+            <div class="count-copy">
+                <span class="count-label">${item.label}</span>
+                <strong class="count-value">${item.count.toLocaleString('es-CO')}</strong>
+                <span class="count-caption">registros actuales</span>
             </div>
         </div>`
     ).join('');
@@ -133,6 +144,8 @@ async function refreshStats() {
 
 function updateStats() {
     refreshStats().catch(e => {
+        $('stats').classList.remove('counts-band');
+        $('stats').classList.add('row', 'row-cards');
         $('stats').innerHTML =
             `<div class="col-12">
                 <div class="alert alert-warning mb-0" role="alert">
@@ -143,6 +156,10 @@ function updateStats() {
 }
 
 async function load() {
+    const isDashboard = cur === 'dashboard';
+    $('form').classList.toggle('dashboard-controls', isDashboard);
+    $('out').classList.toggle('dashboard-results', isDashboard);
+
     document.querySelectorAll('#nav .nav-link').forEach(b => {
         const active = b.dataset.t === cur;
         b.classList.toggle('active', active);
@@ -160,8 +177,36 @@ async function load() {
         else if (cur === 'auditoria') await audit();
         else await crud();
     } catch (e) {
-        alert(e.message);
+        showToast(e.message, 'error');
     }
+}
+
+function showToast(message, type = 'success') {
+    const region = $('toast-region');
+    const toast = document.createElement('div');
+    const icon = type === 'error' ? ICONS.alert : ICONS.check;
+
+    clearTimeout(toastTimeout);
+    region.replaceChildren();
+    toast.className = `toast-message toast-${type}`;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.innerHTML =
+        `<span class="toast-icon" aria-hidden="true">
+            <svg class="lucide-icon" viewBox="0 0 24 24">${icon}</svg>
+        </span>
+        <span class="toast-copy"></span>
+        <button class="toast-close" type="button" aria-label="Cerrar notificación">
+            <svg class="lucide-icon" viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></svg>
+        </button>`;
+    toast.querySelector('.toast-copy').textContent = message;
+    toast.querySelector('.toast-close').addEventListener('click', () => toast.remove());
+    region.append(toast);
+    requestAnimationFrame(() => toast.classList.add('is-visible'));
+
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('is-visible');
+        setTimeout(() => toast.remove(), 180);
+    }, 4200);
 }
 
 function formatLocalDate(date) {
@@ -202,7 +247,8 @@ async function dashboard() {
                     <input class="form-control" type="date" id="analytics-to" value="${hasta}">
                 </label>
                 <button class="btn btn-primary" type="button"
-                    onclick="loadAnalytics().catch(e => alert(e.message))">
+                    onclick="loadAnalytics().catch(e => showToast(e.message, 'error'))">
+                    <svg class="lucide-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS.refresh}</svg>
                     Actualizar dashboard
                 </button>
             </div>
@@ -233,7 +279,10 @@ async function loadAnalytics() {
     destroyAnalyticsCharts();
     $('out').innerHTML =
         `<div class="card-body">
-            <div class="empty-state">Consultando datos reales de MySQL…</div>
+            <div class="loading-state" role="status">
+                <span class="loading-spinner" aria-hidden="true"></span>
+                Consultando datos de la tienda…
+            </div>
         </div>`;
 
     const query = new URLSearchParams({
@@ -256,61 +305,74 @@ async function loadAnalytics() {
 }
 
 function analyticsChartCard(title, subtitle, id, hasData, emptyMessage) {
-    return `<div class="col-12 col-xl-6">
-        <div class="card analytics-chart-card h-100">
-            <div class="card-header">
-                <div>
-                    <h3 class="card-title">${title}</h3>
-                    <div class="panel-subtitle">${subtitle}</div>
-                </div>
+    const panelClass = {
+        'monthly-sales-chart': 'panel-monthly-sales',
+        'income-chart': 'panel-income',
+        'top-products-chart': 'panel-top-products',
+        'category-chart': 'panel-category'
+    }[id];
+
+    return `<section class="analytics-panel ${panelClass}" aria-labelledby="${id}-title">
+        <header class="analytics-panel-header">
+            <div>
+                <h3 class="analytics-panel-title" id="${id}-title">${title}</h3>
+                <p class="panel-subtitle">${subtitle}</p>
             </div>
-            <div class="card-body">
-                ${hasData
-                    ? `<div class="analytics-chart" id="${id}"></div>`
-                    : `<div class="chart-empty">${emptyMessage}</div>`}
-            </div>
+        </header>
+        <div class="analytics-panel-body">
+            ${hasData
+                ? `<div class="analytics-chart" id="${id}" role="img" aria-label="${title}: ${subtitle}"></div>`
+                : `<div class="chart-empty">${emptyMessage}</div>`}
         </div>
-    </div>`;
+    </section>`;
 }
 
 async function renderAnalytics(data) {
     const summary = data.resumen;
     const metrics = [
-        { label: 'Ingresos del período', value: formatNumber(summary.ingresos), tone: 'bg-green-lt text-green', icon: ICONS.ventas },
-        { label: 'Ventas realizadas', value: formatNumber(summary.ventas), tone: 'bg-blue-lt text-blue', icon: ICONS.detalle_ventas },
-        { label: 'Unidades vendidas', value: formatNumber(summary.unidadesVendidas), tone: 'bg-purple-lt text-purple', icon: ICONS.productos },
-        { label: 'Ticket promedio', value: formatNumber(summary.ticketPromedio), tone: 'bg-orange-lt text-orange', icon: ICONS.dashboard }
+        { label: 'Ingresos del período', value: formatNumber(summary.ingresos) },
+        { label: 'Ventas realizadas', value: formatNumber(summary.ventas) },
+        { label: 'Unidades vendidas', value: formatNumber(summary.unidadesVendidas) },
+        { label: 'Ticket promedio', value: formatNumber(summary.ticketPromedio) }
     ];
     const sales = data.ventasMensuales;
     const topProducts = data.productosMasVendidos;
     const categories = data.productosPorCategoria;
     const income = data.ingresosPorPeriodo;
+    const styles = getComputedStyle(document.documentElement);
+    const chartColors = [
+        '--chart-primary',
+        '--chart-secondary',
+        '--chart-tertiary',
+        '--chart-quaternary',
+        '--chart-quinary',
+        '--chart-senary',
+        '--chart-septenary'
+    ].map(token => styles.getPropertyValue(token).trim());
+    const axisColor = styles.getPropertyValue('--text-muted').trim();
+    const gridColor = styles.getPropertyValue('--border-subtle').trim();
+    const sharedAxis = {
+        labels: { style: { colors: axisColor, fontSize: '11px' } }
+    };
 
     $('out').innerHTML =
-        `<div class="card-body">
-            <div class="row row-cards mb-3">
-                ${metrics.map(metric =>
-                    `<div class="col-sm-6 col-xl-3">
-                        <div class="card card-sm">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <span class="stat-icon ${metric.tone}">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true">${metric.icon}</svg>
-                                        </span>
-                                    </div>
-                                    <div class="col">
-                                        <div class="subheader">${metric.label}</div>
-                                        <div class="stat-value">${metric.value}</div>
-                                        <div class="text-secondary small">${data.periodo.desde} — ${data.periodo.hasta}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        `<section class="period-overview" aria-label="Indicadores del período">
+            <div class="overview-primary">
+                <span class="overview-label">${metrics[0].label}</span>
+                <strong class="overview-value">${metrics[0].value}</strong>
+                <span class="overview-period">${data.periodo.desde} — ${data.periodo.hasta}</span>
+            </div>
+            <div class="overview-secondary">
+                ${metrics.slice(1).map((metric, index) =>
+                    `<div class="overview-metric">
+                        <span class="overview-label">${metric.label}</span>
+                        <strong class="overview-secondary-value">${metric.value}</strong>
+                        <span class="overview-note">${index === 2 ? 'Promedio por venta' : 'En el período'}</span>
                     </div>`
                 ).join('')}
             </div>
-            <div class="row row-cards">
+        </section>
+        <div class="analytics-grid">
                 ${analyticsChartCard(
                     'Ventas mensuales',
                     'Cantidad de ventas por mes',
@@ -339,7 +401,6 @@ async function renderAnalytics(data) {
                     categories.length > 0,
                     'No hay productos para distribuir por categoría.'
                 )}
-            </div>
         </div>`;
 
     const monthLabels = sales.map(item => formatMonth(item.mes));
@@ -350,7 +411,7 @@ async function renderAnalytics(data) {
             element: 'monthly-sales-chart',
             options: {
                 series: [{ name: 'Ventas', data: sales.map(item => item.ventas) }],
-                colors: ['#315da8'],
+                colors: [chartColors[0]],
                 chart: {
                     type: 'bar',
                     height: 300,
@@ -360,9 +421,9 @@ async function renderAnalytics(data) {
                 },
                 plotOptions: { bar: { borderRadius: 6, columnWidth: '48%' } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: monthLabels },
-                yaxis: { labels: { formatter: value => formatNumber(value) } },
-                grid: { borderColor: '#e9ecef', strokeDashArray: 4 },
+                xaxis: { categories: monthLabels, ...sharedAxis },
+                yaxis: { labels: { formatter: value => formatNumber(value), style: { colors: axisColor } } },
+                grid: { borderColor: gridColor, strokeDashArray: 0 },
                 tooltip: { y: { formatter: value => `${formatNumber(value)} ventas` } }
             }
         });
@@ -377,14 +438,14 @@ async function renderAnalytics(data) {
                     animations: { enabled: true, easing: 'easeinout', speed: 650 }
                 },
                 series: [{ name: 'Ingresos', data: income.map(item => item.ingresos) }],
-                colors: ['#239b83'],
+                colors: [chartColors[1]],
                 stroke: { curve: 'smooth', width: 3 },
-                fill: { type: 'gradient', gradient: { opacityFrom: 0.3, opacityTo: 0.03 } },
+                fill: { type: 'solid', opacity: 0.1 },
                 markers: { size: 4, strokeWidth: 0 },
                 dataLabels: { enabled: false },
-                xaxis: { categories: income.map(item => formatMonth(item.mes)) },
-                yaxis: { labels: { formatter: value => formatNumber(value) } },
-                grid: { borderColor: '#e9ecef', strokeDashArray: 4 },
+                xaxis: { categories: income.map(item => formatMonth(item.mes)), ...sharedAxis },
+                yaxis: { labels: { formatter: value => formatNumber(value), style: { colors: axisColor } } },
+                grid: { borderColor: gridColor, strokeDashArray: 0 },
                 tooltip: { y: { formatter: value => formatNumber(value) } }
             }
         });
@@ -402,12 +463,15 @@ async function renderAnalytics(data) {
                     animations: { enabled: true, easing: 'easeinout', speed: 650 }
                 },
                 series: [{ name: 'Unidades', data: topProducts.map(item => item.unidades) }],
-                colors: ['#6b73c8'],
+                colors: [chartColors[2]],
                 plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%' } },
                 dataLabels: { enabled: false },
-                xaxis: { categories: topProducts.map(item => item.nombre) },
-                yaxis: { labels: { maxWidth: 170 } },
-                grid: { borderColor: '#e9ecef', strokeDashArray: 4 },
+                xaxis: {
+                    categories: topProducts.map(item => item.nombre),
+                    labels: { style: { colors: axisColor, fontSize: '11px' } }
+                },
+                yaxis: { labels: { maxWidth: 170, style: { colors: axisColor, fontSize: '11px' } } },
+                grid: { borderColor: gridColor, strokeDashArray: 0 },
                 tooltip: { y: { formatter: value => `${formatNumber(value)} unidades` } }
             }
         });
@@ -425,7 +489,7 @@ async function renderAnalytics(data) {
                 },
                 series: categories.map(item => item.productos),
                 labels: categories.map(item => item.categoria),
-                colors: ['#315da8', '#239b83', '#dfa33a', '#d76c68', '#6b73c8', '#49a8ad', '#788da9'],
+                colors: chartColors,
                 legend: { position: 'bottom' },
                 dataLabels: { enabled: false },
                 tooltip: { y: { formatter: value => `${formatNumber(value)} productos` } },
@@ -470,7 +534,9 @@ async function crud() {
                     ).join('')}
                 <div class="form-actions">
                     <button class="btn btn-primary" type="button" onclick="save()">
-                        ${editId !== null ? 'Guardar cambios' : '＋ Agregar'}
+                        ${editId !== null
+                            ? 'Guardar cambios'
+                            : `<svg class="lucide-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS.plus}</svg> Agregar`}
                     </button>
                     ${editId !== null
                         ? `<button class="btn btn-outline-secondary" type="button" onclick="editId=null;load()">Cancelar</button>`
@@ -490,6 +556,7 @@ async function crud() {
             ? `<div class="table-toolbar">
                 <label class="table-search">
                     <span class="visually-hidden">Buscar en ${LABELS[cur].toLowerCase()}</span>
+                    <svg class="lucide-icon search-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS.search}</svg>
                     <input class="form-control form-control-sm" id="table-search" type="search"
                         placeholder="Buscar por cualquier campo" autocomplete="off">
                 </label>
@@ -499,8 +566,8 @@ async function crud() {
                 <table class="table table-vcenter table-card table-striped">
                     <thead>
                         <tr>
-                            ${meta.columns.map(c => `<th>${esc(c.name)}</th>`).join('')}
-                            <th>Acciones</th>
+                            ${meta.columns.map(c => `<th scope="col">${esc(c.name)}</th>`).join('')}
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -568,6 +635,7 @@ async function save() {
     );
 
     try {
+        const wasEditing = Boolean(editId);
         if (editId) {
             await api(`/api/${cur}/${editId}`, 'PUT', body);
         } else {
@@ -577,8 +645,9 @@ async function save() {
         editId = null;
         await load();
         updateStats();
+        showToast(wasEditing ? 'Cambios guardados.' : 'Registro agregado.');
     } catch (e) {
-        alert(e.message);
+        showToast(e.message, 'error');
     }
 }
 
@@ -629,8 +698,9 @@ $('confirm-delete').onclick = async () => {
         closeDeleteModal();
         await load();
         updateStats();
+        showToast('Registro eliminado.');
     } catch (e) {
-        alert(e.message);
+        showToast(e.message, 'error');
     }
 };
 
@@ -684,7 +754,7 @@ async function audit() {
                     <span class="form-label">Tabla</span>
                     <select class="form-select" id="tb">
                         <option value="">Todas las tablas</option>
-                        ${T.slice(0, 5).map(t => `<option value="${t}">${LABELS[t]}</option>`)}
+                        ${T.slice(1, 6).map(t => `<option value="${t}">${LABELS[t]}</option>`)}
                     </select>
                 </label>
                 <label class="field">
@@ -698,7 +768,8 @@ async function audit() {
                 </label>
                 <div class="form-actions">
                     <button class="btn btn-primary" type="button"
-                        onclick="runAudit().catch(e => alert(e.message))">
+                        onclick="runAudit().catch(e => showToast(e.message, 'error'))">
+                        <svg class="lucide-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS.search}</svg>
                         Consultar reporte
                     </button>
                 </div>
@@ -730,6 +801,7 @@ async function runAudit() {
             ? `<div class="table-toolbar">
                 <label class="table-search">
                     <span class="visually-hidden">Buscar en la auditoría</span>
+                    <svg class="lucide-icon search-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS.search}</svg>
                     <input class="form-control form-control-sm" id="table-search" type="search"
                         placeholder="Buscar en la actividad" autocomplete="off">
                 </label>
@@ -739,13 +811,13 @@ async function runAudit() {
                 <table class="table table-vcenter table-card table-striped audit-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Usuario</th>
-                            <th>Tabla</th>
-                            <th>Operación</th>
-                            <th>ID</th>
-                            <th>Datos anteriores</th>
-                            <th>Datos nuevos</th>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Tabla</th>
+                            <th scope="col">Operación</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Datos anteriores</th>
+                            <th scope="col">Datos nuevos</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -762,7 +834,7 @@ async function runAudit() {
                                 <td>${esc(new Date(r.fecha).toLocaleString())}</td>
                                 <td>${esc(r.usuario)}</td>
                                 <td>${esc(LABELS[r.tabla] || r.tabla)}</td>
-                                <td><span class="badge bg-azure-lt">${esc(r.operacion)}</span></td>
+                                <td><span class="badge operation-badge operation-${esc(String(r.operacion).toLowerCase())}">${esc(r.operacion)}</span></td>
                                 <td>${esc(r.id_registro)}</td>
                                 <td><pre>${esc(r.datos_anteriores && JSON.stringify(r.datos_anteriores))}</pre></td>
                                 <td><pre>${esc(r.datos_nuevos && JSON.stringify(r.datos_nuevos))}</pre></td>
