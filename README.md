@@ -5,6 +5,7 @@ Aplicación web para administrar una tienda con **Node.js**, **Express** y **MyS
 ## Funcionalidades
 
 - Operaciones CRUD para categorías, productos, clientes, ventas y detalle de ventas.
+- Búsqueda inmediata en las tablas de gestión y auditoría.
 - Registro y consulta de auditoría. Los cambios se atribuyen al usuario indicado en la interfaz mediante `x-usuario` y `@app_usuario`.
 - Dashboard con indicadores y gráficas de ventas mensuales, productos más vendidos, productos por categoría e ingresos por período.
 - Filtro por fecha para consultar las estadísticas.

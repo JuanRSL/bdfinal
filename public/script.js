@@ -349,10 +349,16 @@ async function renderAnalytics(data) {
         charts.push({
             element: 'monthly-sales-chart',
             options: {
-                chart: { type: 'bar', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
                 series: [{ name: 'Ventas', data: sales.map(item => item.ventas) }],
-                colors: ['#206bc4'],
-                plotOptions: { bar: { borderRadius: 4, columnWidth: '48%' } },
+                colors: ['#315da8'],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: { show: false },
+                    fontFamily: 'inherit',
+                    animations: { enabled: true, easing: 'easeinout', speed: 650 }
+                },
+                plotOptions: { bar: { borderRadius: 6, columnWidth: '48%' } },
                 dataLabels: { enabled: false },
                 xaxis: { categories: monthLabels },
                 yaxis: { labels: { formatter: value => formatNumber(value) } },
@@ -363,10 +369,17 @@ async function renderAnalytics(data) {
         charts.push({
             element: 'income-chart',
             options: {
-                chart: { type: 'line', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
+                chart: {
+                    type: 'area',
+                    height: 300,
+                    toolbar: { show: false },
+                    fontFamily: 'inherit',
+                    animations: { enabled: true, easing: 'easeinout', speed: 650 }
+                },
                 series: [{ name: 'Ingresos', data: income.map(item => item.ingresos) }],
-                colors: ['#2fb344'],
+                colors: ['#239b83'],
                 stroke: { curve: 'smooth', width: 3 },
+                fill: { type: 'gradient', gradient: { opacityFrom: 0.3, opacityTo: 0.03 } },
                 markers: { size: 4, strokeWidth: 0 },
                 dataLabels: { enabled: false },
                 xaxis: { categories: income.map(item => formatMonth(item.mes)) },
@@ -381,10 +394,16 @@ async function renderAnalytics(data) {
         charts.push({
             element: 'top-products-chart',
             options: {
-                chart: { type: 'bar', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
+                chart: {
+                    type: 'bar',
+                    height: 320,
+                    toolbar: { show: false },
+                    fontFamily: 'inherit',
+                    animations: { enabled: true, easing: 'easeinout', speed: 650 }
+                },
                 series: [{ name: 'Unidades', data: topProducts.map(item => item.unidades) }],
-                colors: ['#ae3ec9'],
-                plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '60%' } },
+                colors: ['#6b73c8'],
+                plotOptions: { bar: { horizontal: true, borderRadius: 6, barHeight: '60%' } },
                 dataLabels: { enabled: false },
                 xaxis: { categories: topProducts.map(item => item.nombre) },
                 yaxis: { labels: { maxWidth: 170 } },
@@ -398,10 +417,15 @@ async function renderAnalytics(data) {
         charts.push({
             element: 'category-chart',
             options: {
-                chart: { type: 'donut', height: 320, fontFamily: 'inherit' },
+                chart: {
+                    type: 'donut',
+                    height: 320,
+                    fontFamily: 'inherit',
+                    animations: { enabled: true, easing: 'easeinout', speed: 650 }
+                },
                 series: categories.map(item => item.productos),
                 labels: categories.map(item => item.categoria),
-                colors: ['#206bc4', '#2fb344', '#f59f00', '#d63939', '#ae3ec9', '#0ca678', '#4299e1'],
+                colors: ['#315da8', '#239b83', '#dfa33a', '#d76c68', '#6b73c8', '#49a8ad', '#788da9'],
                 legend: { position: 'bottom' },
                 dataLabels: { enabled: false },
                 tooltip: { y: { formatter: value => `${formatNumber(value)} productos` } },
@@ -463,7 +487,15 @@ async function crud() {
             </div>
         </div>
         ${rows.length
-            ? `<div class="table-responsive">
+            ? `<div class="table-toolbar">
+                <label class="table-search">
+                    <span class="visually-hidden">Buscar en ${LABELS[cur].toLowerCase()}</span>
+                    <input class="form-control form-control-sm" id="table-search" type="search"
+                        placeholder="Buscar por cualquier campo" autocomplete="off">
+                </label>
+                <span class="table-count" id="table-count" aria-live="polite"></span>
+            </div>
+            <div class="table-responsive">
                 <table class="table table-vcenter table-card table-striped">
                     <thead>
                         <tr>
@@ -473,9 +505,9 @@ async function crud() {
                     </thead>
                     <tbody>
                         ${rows.map(r =>
-                            `<tr>
+                            `<tr data-search="${esc(meta.columns.map(c => String(r[c.name] ?? '')).join(' '))}">
                                 ${meta.columns.map(c =>
-                                    `<td>${esc(
+                                    `<td${c.name === meta.pk ? ' class="record-id"' : ''}>${esc(
                                         c.name === 'fecha'
                                             ? String(r[c.name]).slice(0, 10)
                                             : r[c.name]
@@ -493,11 +525,39 @@ async function crud() {
                         ).join('')}
                     </tbody>
                 </table>
+                <div class="table-search-empty" id="table-search-empty" hidden>
+                    No hay registros que coincidan con la búsqueda.
+                </div>
             </div>`
             : `<div class="empty-state">
                 <strong>Aún no hay registros</strong>
                 <span>Agrega el primero usando el formulario de arriba.</span>
             </div>`}`;
+
+    if (rows.length) setupTableSearch(rows.length);
+}
+
+function setupTableSearch(total) {
+    const input = $('table-search');
+    const rows = [...$('out').querySelectorAll('tbody tr')];
+    const count = $('table-count');
+    const empty = $('table-search-empty');
+
+    input.addEventListener('input', () => {
+        const query = input.value.trim().toLocaleLowerCase('es');
+        let visible = 0;
+
+        rows.forEach(row => {
+            const matches = row.dataset.search.toLocaleLowerCase('es').includes(query);
+            row.hidden = !matches;
+            if (matches) visible++;
+        });
+
+        count.textContent = `Mostrando ${visible} de ${total} ${total === 1 ? 'registro' : 'registros'}`;
+        empty.hidden = visible > 0;
+    });
+
+    input.dispatchEvent(new Event('input'));
 }
 
 async function save() {
@@ -667,7 +727,15 @@ async function runAudit() {
             <span class="badge bg-blue-lt">${rows.length} ${rows.length === 1 ? 'resultado' : 'resultados'}</span>
         </div>
         ${rows.length
-            ? `<div class="table-responsive">
+            ? `<div class="table-toolbar">
+                <label class="table-search">
+                    <span class="visually-hidden">Buscar en la auditoría</span>
+                    <input class="form-control form-control-sm" id="table-search" type="search"
+                        placeholder="Buscar en la actividad" autocomplete="off">
+                </label>
+                <span class="table-count" id="table-count" aria-live="polite"></span>
+            </div>
+            <div class="table-responsive">
                 <table class="table table-vcenter table-card table-striped audit-table">
                     <thead>
                         <tr>
@@ -682,7 +750,15 @@ async function runAudit() {
                     </thead>
                     <tbody>
                         ${rows.map(r =>
-                            `<tr>
+                            `<tr data-search="${esc([
+                                r.fecha,
+                                r.usuario,
+                                LABELS[r.tabla] || r.tabla,
+                                r.operacion,
+                                r.id_registro,
+                                JSON.stringify(r.datos_anteriores ?? ''),
+                                JSON.stringify(r.datos_nuevos ?? '')
+                            ].join(' '))}">
                                 <td>${esc(new Date(r.fecha).toLocaleString())}</td>
                                 <td>${esc(r.usuario)}</td>
                                 <td>${esc(LABELS[r.tabla] || r.tabla)}</td>
@@ -694,11 +770,16 @@ async function runAudit() {
                         ).join('')}
                     </tbody>
                 </table>
+                <div class="table-search-empty" id="table-search-empty" hidden>
+                    No hay cambios que coincidan con la búsqueda.
+                </div>
             </div>`
             : `<div class="empty-state">
                 <strong>No hay cambios para mostrar</strong>
                 <span>Prueba con otro periodo o ajusta los filtros seleccionados.</span>
             </div>`}`;
+
+    if (rows.length) setupTableSearch(rows.length);
 }
 
 load();
